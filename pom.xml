@@ -8,6 +8,7 @@
 	<properties>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
 		<thundr.version>2.0.0</thundr.version>
+		<gae.version>1.9.18</gae.version>
 	</properties>
 
 	<dependencies>
@@ -34,6 +35,32 @@
 			<groupId>com.threewks.thundr</groupId>
 			<artifactId>thundr-gae</artifactId>
 			<version>${thundr.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.threewks.thundr</groupId>
+			<artifactId>thundr-gae</artifactId>
+			<version>${thundr.version}</version>
+			<scope>test</scope>
+			<type>test-jar</type>
+		</dependency>
+		<!-- GAE API dependency -->
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-api-1.0-sdk</artifactId>
+			<version>${gae.version}</version>
+			<scope>compile</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-api-stubs</artifactId>
+			<version>${gae.version}</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
+			<groupId>com.google.appengine</groupId>
+			<artifactId>appengine-testing</artifactId>
+			<version>${gae.version}</version>
 			<scope>test</scope>
 		</dependency>
 

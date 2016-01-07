@@ -1,14 +1,12 @@
 package com.atomicleopard.thundr.notification;
 
-import static com.atomicleopard.expressive.Expressive.isNotEmpty;
+import static com.atomicleopard.expressive.Expressive.*;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 
-import com.atomicleopard.expressive.ETransformer;
 import com.atomicleopard.expressive.Expressive;
 import com.threewks.thundr.exception.BaseException;
 import com.threewks.thundr.logger.Logger;
@@ -25,13 +23,13 @@ import apns.PushNotification;
 import apns.PushNotificationService;
 
 public class NotificationService {
-	protected NotificationTargetRepository notificationTokenStore;
+	protected NotificationTargetRepository<NotificationTarget> notificationTokenStore;
 	protected PushNotificationService apnsService;
 	protected ApnsConnectionFactory apnsConnectionFactory;
 	protected ApnsConnection apnsConnection;
 	protected FeedbackService feedbackService;
 
-	public NotificationService(NotificationTargetRepository notificationTokenStore) {
+	public NotificationService(NotificationTargetRepository<NotificationTarget> notificationTokenStore) {
 		super();
 		this.notificationTokenStore = notificationTokenStore;
 	}
@@ -63,7 +61,7 @@ public class NotificationService {
 
 	public int send(Notification notification, String category, List<String> usernames) {
 		List<NotificationTarget> targets = listNotificationTargets(usernames, category);
-		Map<NotificationType, List<NotificationTarget>> targetsByType = TargetsByType.from(targets);
+		Map<NotificationType, List<NotificationTarget>> targetsByType = groupByType(targets);
 		List<NotificationTarget> apns = targetsByType.get(NotificationType.APNS);
 		List<NotificationTarget> gcm = targetsByType.get(NotificationType.GCM);
 		int count = 0;
@@ -77,7 +75,7 @@ public class NotificationService {
 	}
 
 	private int sendApns(Notification notification, List<NotificationTarget> apns) {
-		List<String> deviceTokens = NotificationTarget.ToIds.from(apns);
+		List<String> deviceTokens = toIds(apns);
 		if (isNotEmpty(deviceTokens)) {
 			// @formatter:off
 			PushNotification pn = new PushNotification()
@@ -146,7 +144,25 @@ public class NotificationService {
 		notificationTokenStore.clear(clientId);
 	}
 
-	private static final ETransformer<Collection<NotificationTarget>, Map<NotificationType, List<NotificationTarget>>> TargetsByType = Expressive.Transformers.toBeanLookup("type",
-			NotificationTarget.class);
+	public static List<String> toIds(List<NotificationTarget> apns) {
+		List<String> result = new ArrayList<>(apns.size());
+		for (NotificationTarget t : apns) {
+			result.add(t.getId());
+		}
+		return result;
+	}
 
+	private static Map<NotificationType, List<NotificationTarget>> groupByType(List<NotificationTarget> targets) {
+		List<NotificationTarget> apns = new ArrayList<>();
+		List<NotificationTarget> gcm = new ArrayList<>();
+		for (NotificationTarget n : targets) {
+			if (n.getType() == NotificationType.APNS) {
+				apns.add(n);
+			}
+			if (n.getType() == NotificationType.GCM) {
+				gcm.add(n);
+			}
+		}
+		return map(NotificationType.APNS, apns, NotificationType.GCM, gcm);
+	}
 }
