@@ -67,7 +67,7 @@ public class NotificationModule extends BaseModule {
 				return DefaultApnsConnectionFactory.Builder.get().setSandboxKeyStoreProvider(ksp).build();
 			}
 		} catch (Exception e) {
-			throw new ConfigurationException("%s - failed creating Apple Push Notification Service connection factory - check the specified keyfile '%s' is correct and valid",
+			throw new ConfigurationException(e, "%s - failed creating Apple Push Notification Service connection factory - check the specified keyfile '%s' is correct and valid",
 					this.getClass().getSimpleName(), apnsKeyfile);
 		}
 	}
